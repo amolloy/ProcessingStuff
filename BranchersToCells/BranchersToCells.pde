@@ -183,8 +183,7 @@ void draw()
      double maxDistSq = width * width + height * height;
      
      loadPixels();
-     for (int y = 0; y < height; ++y)
-     {
+      int y = stage1y;
         for (int x = 0; x < width; ++x)
         {
             Point closest = intersectionPoints.get(0);
@@ -203,10 +202,15 @@ void draw()
             double distScale = Math.sqrt(closestDistSq) / (width * 0.1);
             pixels[y * width + x] = color((int)(distScale * 0xFF));
         }
-     }
-    
     updatePixels();
+    
+    
+    stage1y++;
+    if (stage1y >= height)
+    {
     noLoop();
+      println("Done");
+    }
   }
   
   saveFrame();
