@@ -8,6 +8,7 @@ final int minStartingAgents = 3;
 final int maxStartingAgents = 4;
 final double speed = 10;
 final double branchDist = 20;
+final double maxCellSize = 30;
 
 class Point
 {
@@ -199,7 +200,7 @@ void draw()
                     closestDistSq = distSq;
                 }
             }
-            double distScale = Math.sqrt(closestDistSq) / (width * 0.1);
+            double distScale = Math.sqrt(closestDistSq) / maxCellSize;
             int c = (int)(distScale * 0xFF);
             if (c > 0xFF)
             {
