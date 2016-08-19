@@ -197,7 +197,7 @@ void draw()
           PVector nearest = kd_tree.getNN( new PVector(x, y)).pnt_nn;
           double dist = Math.sqrt(pow(nearest.x - x, 2) + pow(nearest.y - y, 2));
           double distScale = dist / maxCellSize;
-          int c = (int)(distScale * 0xFF);
+          int c = (int)(-Math.log(1.0 - distScale) * 0xA0);
           if (c > 0xFF)
           {
             c = 0;
