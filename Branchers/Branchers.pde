@@ -147,9 +147,10 @@ void setup()
   noSmooth();
   
   double speed = 5;
-  double branchDist = 10;
+  double branchDist = 15;
   
-  for (int i = 0; i < 5; ++i)
+  int startCount = (int)random(10);
+  for (int i = 0; i < startCount; ++i)
   {
     Agent agent = new Agent(random(359), speed, new Point(width / 2, height / 2), branchDist);
     agents.add(agent);
