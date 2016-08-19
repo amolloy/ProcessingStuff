@@ -3,13 +3,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 final int margin = 40;
-final int branchAngleMinRange = -180;
-final int branchAngleMaxRange = 180;
-final int minStartingAgents = 5;
-final int maxStartingAgents = 10;
+final int branchAngleMinRange = -45;
+final int branchAngleMaxRange = 45;
+final int minStartingAgents = 2;
+final int maxStartingAgents = 3;
 final double speed = 10;
-final double branchDist = 20;
-final double maxCellSize = 40;
+final double branchDist = 16;
+final double maxCellSize = 50;
 
 ArrayList<PVector> intersectionPoints = new ArrayList<PVector>();
 
@@ -123,10 +123,10 @@ class Agent
       double distFromCenter = sqrt((offset.x * offset.x) + (offset.y * offset.y));
       if (distFromCenter <= (width / 2 - margin * 2))
       {
-      double branchAngle = random(branchAngleMaxRange - branchAngleMinRange) + branchAngleMinRange;
-      Agent newAgent = new Agent(direction + branchAngle, speed, newLocation, branchDistance);
-      nextStepAgents.add(newAgent);
-    }
+        double branchAngle = random(branchAngleMaxRange - branchAngleMinRange) + branchAngleMinRange;
+        Agent newAgent = new Agent(direction + branchAngle, speed, newLocation, branchDistance);
+        nextStepAgents.add(newAgent);
+      }
     }
 
     location = newLocation;
