@@ -2,10 +2,10 @@ import java.lang.Math.*;
 import java.util.ArrayList;
 
 final int margin = 40;
-final int branchAngleMinRange = -50;
-final int branchAngleMaxRange = 50;
-final int minStartingAgents = 4;
-final int maxStartingAgents = 10;
+final int branchAngleMinRange = -10;
+final int branchAngleMaxRange = 10;
+final int minStartingAgents = 3;
+final int maxStartingAgents = 4;
 final double speed = 10;
 final double branchDist = 20;
 
@@ -184,7 +184,7 @@ void draw()
      
      loadPixels();
       int y = stage1y;
-        for (int x = 0; x < width; ++x)
+       for (int x = 0; x < width; ++x)
         {
             Point closest = intersectionPoints.get(0);
             double closestDistSq = maxDistSq;
@@ -207,13 +207,13 @@ void draw()
             }
             pixels[y * width + x] = color(c);
         }
-    updatePixels();
+        updatePixels();
     
     
     stage1y++;
     if (stage1y >= height)
     {
-    noLoop();
+      noLoop();
       println("Done");
     }
   }
