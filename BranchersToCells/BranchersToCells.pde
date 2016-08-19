@@ -13,6 +13,8 @@ class Point
   }
 }
 
+ArrayList<Point> intersectionPoints = new ArrayList<Point>();
+
 class Agent
 {
   double direction; // Angle in degrees
@@ -52,6 +54,7 @@ class Agent
       {
         if (x0 != inX && get(x0, y0) == 0xFF000000)
         {
+          intersectionPoints.add(new Point(x0, y0));
           return true;
         }
         point(x0, y0);
@@ -74,6 +77,7 @@ class Agent
       {
         if (inY != y0 && get(x0, y0) == 0xFF000000)
         {
+          intersectionPoints.add(new Point(x0, y0));
           return true;
         }
         point(x0, y0);
@@ -140,14 +144,15 @@ class Agent
 }
 
 ArrayList<Agent> agents = new ArrayList<Agent>();
+int stage = 0;
 
 void setup()
 {
   size(800, 800);
   noSmooth();
   
-  double speed = 5;
-  double branchDist = 15;
+  double speed = 10;
+  double branchDist = 20;
   
   int startCount = (int)random(10);
   for (int i = 0; i < startCount; ++i)
@@ -159,15 +164,48 @@ void setup()
 
 void draw()
 {
-  ArrayList<Agent> nextStepAgents = new ArrayList<Agent>();
-  for (Agent agent : agents)
+  if (stage == 0)
   {
-    nextStepAgents.addAll(agent.step());
+    ArrayList<Agent> nextStepAgents = new ArrayList<Agent>();
+    for (Agent agent : agents)
+    {
+      nextStepAgents.addAll(agent.step());
+    }
+    agents = nextStepAgents;
+    
+    if (agents.size() == 0)
+    {
+      stage = 1;
+    }
   }
-  agents = nextStepAgents;
-  
-  if (agents.size() == 0)
+  else if (stage == 1)
   {
+     double maxDistSq = width * width + height * height;
+     
+     loadPixels();
+     for (int y = 0; y < height; ++y)
+     {
+        for (int x = 0; x < width; ++x)
+        {
+            Point closest = intersectionPoints.get(0);
+            double closestDistSq = maxDistSq;
+            for (Point pt : intersectionPoints)
+            {
+                double distX = x - pt.x;
+                double distY = y - pt.y;
+                double distSq = distX * distX + distY * distY;
+                if (distSq < closestDistSq)
+                {
+                    closest = pt;
+                    closestDistSq = distSq;
+                }
+            }
+            double distScale = Math.sqrt(closestDistSq) / (width * 0.1);
+            pixels[y * width + x] = color((int)(distScale * 0xFF));
+        }
+     }
+    
+    updatePixels();
     noLoop();
   }
   
