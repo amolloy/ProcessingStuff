@@ -10,27 +10,17 @@ final double speed = 10;
 final double branchDist = 10;
 final double maxCellSize = 30;
 
-class Point
-{
-  public int x, y;
-  public Point(int x, int y)
-  {
-    this.x = x;
-    this.y = y;
-  }
-}
-
-ArrayList<Point> intersectionPoints = new ArrayList<Point>();
+ArrayList<PVector> intersectionPoints = new ArrayList<PVector>();
 
 class Agent
 {
   double direction; // Angle in degrees
   double speed; // In pixels per frame
-  Point location;
-  Point lastBranch;
+  PVector location;
+  PVector lastBranch;
   double branchDistance;
   
-  public Agent(double direction, double speed, Point startingLocation, double branchDistance)
+  public Agent(double direction, double speed, PVector startingLocation, double branchDistance)
   {
     this.direction = direction;
     this.speed = speed;
@@ -39,8 +29,13 @@ class Agent
     this.branchDistance = branchDistance;
   }
   
-  Boolean checkedLine(int x0, int y0, int x1, int y1)
+  Boolean checkedLine(PVector pt1, PVector pt2)
   {
+    int x0 = (int)pt1.x;
+    int x1 = (int)pt2.x;
+    int y0 = (int)pt1.y;
+    int y1 = (int)pt2.y;
+    
     int d = 0;
  
     int dy = Math.abs(y1 - y0);
@@ -61,7 +56,7 @@ class Agent
       {
         if (x0 != inX && get(x0, y0) == 0xFF000000)
         {
-          intersectionPoints.add(new Point(x0, y0));
+          intersectionPoints.add(new PVector(x0, y0));
           return true;
         }
         point(x0, y0);
@@ -84,7 +79,7 @@ class Agent
       {
         if (inY != y0 && get(x0, y0) == 0xFF000000)
         {
-          intersectionPoints.add(new Point(x0, y0));
+          intersectionPoints.add(new PVector(x0, y0));
           return true;
         }
         point(x0, y0);
@@ -113,9 +108,9 @@ class Agent
     
     double velx = Math.cos(Math.toRadians(direction)) * speed;
     double vely = Math.sin(Math.toRadians(direction)) * speed;
-    Point newLocation = new Point((int)(location.x + velx),
-                                  (int)(location.y + vely));
-    Point oldLocation = location;
+    PVector newLocation = new PVector((int)(location.x + velx),
+                                      (int)(location.y + vely));
+    PVector oldLocation = location;
     
     if ((Math.abs(lastBranch.x - newLocation.x) >= branchDistance) ||
         (Math.abs(lastBranch.y - newLocation.y) >= branchDistance))
@@ -128,10 +123,10 @@ class Agent
 
     location = newLocation;
 
-    Boolean intersected = checkedLine(oldLocation.x, oldLocation.y, newLocation.x, newLocation.y);
+    Boolean intersected = checkedLine(oldLocation, newLocation);
 
-    Point offset = new Point(location.x - width / 2,
-                             location.y - height / 2);
+    PVector offset = new PVector(location.x - width / 2,
+                                 location.y - height / 2);
     double distFromCenter = sqrt((offset.x * offset.x) + (offset.y * offset.y));
 
     if (distFromCenter <= (width / 2 - margin * 2))
@@ -158,7 +153,7 @@ void setup()
   int startCount = (int)(random(maxStartingAgents - minStartingAgents) + minStartingAgents);
   for (int i = 0; i < startCount; ++i)
   {
-    Agent agent = new Agent(random(359), speed, new Point(width / 2, height / 2), branchDist);
+    Agent agent = new Agent(random(359), speed, new PVector(width / 2, height / 2), branchDist);
     agents.add(agent);
   }
 }
@@ -187,9 +182,9 @@ void draw()
       int y = stage1y;
        for (int x = 0; x < width; ++x)
         {
-            Point closest = intersectionPoints.get(0);
+            PVector closest = intersectionPoints.get(0);
             double closestDistSq = maxDistSq;
-            for (Point pt : intersectionPoints)
+            for (PVector pt : intersectionPoints)
             {
                 double distX = x - pt.x;
                 double distY = y - pt.y;
