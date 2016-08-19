@@ -4,6 +4,8 @@ import java.util.ArrayList;
 final int margin = 40;
 final int branchAngleMinRange = 90;
 final int branchAngleMaxRange = 90;
+final int minStartingAgents = 4;
+final int maxStartingAgents = 10;
 
 class Point
 {
@@ -156,7 +158,7 @@ void setup()
   double speed = 10;
   double branchDist = 20;
   
-  int startCount = (int)random(10);
+  int startCount = (int)(random(maxStartingAgents - minStartingAgents) + minStartingAgents);
   for (int i = 0; i < startCount; ++i)
   {
     Agent agent = new Agent(random(359), speed, new Point(width / 2, height / 2), branchDist);
