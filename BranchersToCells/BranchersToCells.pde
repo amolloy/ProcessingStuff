@@ -1,7 +1,7 @@
 import java.lang.Math.*;
 import java.util.ArrayList;
 
-final int margin = 10;
+final int margin = 40;
 
 class Point
 {
