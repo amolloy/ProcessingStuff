@@ -117,9 +117,16 @@ class Agent
         (Math.abs(lastBranch.y - newLocation.y) >= branchDistance))
     {
       lastBranch = newLocation;
+      
+      PVector offset = new PVector(newLocation.x - width / 2,
+                                   newLocation.y - height / 2);
+      double distFromCenter = sqrt((offset.x * offset.x) + (offset.y * offset.y));
+      if (distFromCenter <= (width / 2 - margin * 2))
+      {
       double branchAngle = random(branchAngleMaxRange - branchAngleMinRange) + branchAngleMinRange;
       Agent newAgent = new Agent(direction + branchAngle, speed, newLocation, branchDistance);
       nextStepAgents.add(newAgent);
+    }
     }
 
     location = newLocation;
