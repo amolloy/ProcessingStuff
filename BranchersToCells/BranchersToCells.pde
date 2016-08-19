@@ -2,8 +2,8 @@ import java.lang.Math.*;
 import java.util.ArrayList;
 
 final int margin = 40;
-final int branchAngleMinRange = 90;
-final int branchAngleMaxRange = 90;
+final int branchAngleMinRange = -50;
+final int branchAngleMaxRange = 50;
 final int minStartingAgents = 4;
 final int maxStartingAgents = 10;
 
