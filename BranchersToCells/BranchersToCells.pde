@@ -2,6 +2,8 @@ import java.lang.Math.*;
 import java.util.ArrayList;
 
 final int margin = 40;
+final int branchAngleMinRange = 90;
+final int branchAngleMaxRange = 90;
 
 class Point
 {
@@ -114,7 +116,7 @@ class Agent
         (Math.abs(lastBranch.y - newLocation.y) >= branchDistance))
     {
       lastBranch = newLocation;
-      double branchAngle = random(170) - 85;
+      double branchAngle = random(branchAngleMaxRange - branchAngleMinRange) + branchAngleMinRange;
       Agent newAgent = new Agent(direction + branchAngle, speed, newLocation, branchDistance);
       nextStepAgents.add(newAgent);
     }
