@@ -135,11 +135,7 @@ class Agent
 
     if (distFromCenter <= (width / 2 - margin * 2))
     {
-      if (intersected)
-      {
-        println(" not intersected");
-      }
-      else
+      if (!intersected)
       {
         nextStepAgents.add(this);
       }
@@ -151,6 +147,7 @@ class Agent
 
 ArrayList<Agent> agents = new ArrayList<Agent>();
 int stage = 0;
+int stage1y = 0;
 
 void setup()
 {
