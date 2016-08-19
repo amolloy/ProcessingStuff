@@ -200,7 +200,12 @@ void draw()
                 }
             }
             double distScale = Math.sqrt(closestDistSq) / (width * 0.1);
-            pixels[y * width + x] = color((int)(distScale * 0xFF));
+            int c = (int)(distScale * 0xFF);
+            if (c > 0xFF)
+            {
+              c = 0;
+            }
+            pixels[y * width + x] = color(c);
         }
     updatePixels();
     
