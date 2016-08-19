@@ -2,12 +2,12 @@ import java.lang.Math.*;
 import java.util.ArrayList;
 
 final int margin = 40;
-final int branchAngleMinRange = -10;
-final int branchAngleMaxRange = 10;
-final int minStartingAgents = 3;
-final int maxStartingAgents = 4;
+final int branchAngleMinRange = -30;
+final int branchAngleMaxRange = 30;
+final int minStartingAgents = 5;
+final int maxStartingAgents = 10;
 final double speed = 10;
-final double branchDist = 20;
+final double branchDist = 10;
 final double maxCellSize = 30;
 
 class Point
