@@ -3,13 +3,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 final int margin = 40;
-final int branchAngleMinRange = -30;
-final int branchAngleMaxRange = 30;
+final int branchAngleMinRange = -180;
+final int branchAngleMaxRange = 180;
 final int minStartingAgents = 5;
 final int maxStartingAgents = 10;
 final double speed = 10;
-final double branchDist = 10;
-final double maxCellSize = 30;
+final double branchDist = 20;
+final double maxCellSize = 40;
 
 ArrayList<PVector> intersectionPoints = new ArrayList<PVector>();
 
