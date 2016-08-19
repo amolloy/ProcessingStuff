@@ -144,7 +144,6 @@ class Agent
 
 ArrayList<Agent> agents = new ArrayList<Agent>();
 int stage = 0;
-int stage1y = 0;
 KdTree kd_tree;
 
 void setup()
@@ -185,7 +184,7 @@ void draw()
     else if (stage == 2)
     {
        loadPixels();
-       int y = stage1y;
+       for (int y = 0; y < height; ++ y)
        for (int x = 0; x < width; ++x)
        {
           PVector nearest = kd_tree.getNN( new PVector(x, y)).pnt_nn;
@@ -200,12 +199,8 @@ void draw()
         }
         updatePixels();
 
-        stage1y++;
-        if (stage1y >= height)
-        {
           noLoop();
           println("Done");
-        }
     }
   
     saveFrame();
