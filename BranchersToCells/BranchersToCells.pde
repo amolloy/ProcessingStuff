@@ -6,6 +6,8 @@ final int branchAngleMinRange = -50;
 final int branchAngleMaxRange = 50;
 final int minStartingAgents = 4;
 final int maxStartingAgents = 10;
+final double speed = 10;
+final double branchDist = 20;
 
 class Point
 {
@@ -154,10 +156,7 @@ void setup()
 {
   size(800, 800);
   noSmooth();
-  
-  double speed = 10;
-  double branchDist = 20;
-  
+    
   int startCount = (int)(random(maxStartingAgents - minStartingAgents) + minStartingAgents);
   for (int i = 0; i < startCount; ++i)
   {
