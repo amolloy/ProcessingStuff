@@ -3,28 +3,26 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 final int margin = 40;
-final int branchAngleMinRange = -45;
-final int branchAngleMaxRange = 45;
+final int branchAngleMinRange = 90;
+final int branchAngleMaxRange = 90;
 final int minStartingAgents = 2;
-final int maxStartingAgents = 3;
-final double speed = 10;
-final double branchDist = 16;
-final double maxCellSize = 50;
+final int maxStartingAgents = 4;
+final float speed = 10;
+final float branchDist = 20;
+final float maxCellSize = 50;
 
 ArrayList<PVector> intersectionPoints = new ArrayList<PVector>();
 
 class Agent
 {
-  double direction; // Angle in degrees
-  double speed; // In pixels per frame
+  PVector velocity;
   PVector location;
   PVector lastBranch;
   double branchDistance;
   
-  public Agent(double direction, double speed, PVector startingLocation, double branchDistance)
+  public Agent(PVector velocity, PVector startingLocation, double branchDistance)
   {
-    this.direction = direction;
-    this.speed = speed;
+    this.velocity = velocity;    
     this.location = startingLocation;
     this.lastBranch = startingLocation;
     this.branchDistance = branchDistance;
@@ -107,24 +105,24 @@ class Agent
   {
     ArrayList<Agent> nextStepAgents = new ArrayList<Agent>();
     
-    double velx = Math.cos(Math.toRadians(direction)) * speed;
-    double vely = Math.sin(Math.toRadians(direction)) * speed;
-    PVector newLocation = new PVector((int)(location.x + velx),
-                                      (int)(location.y + vely));
-    PVector oldLocation = location;
+    PVector newLocation =  location.copy();
+    newLocation.add(velocity);
+    PVector oldLocation = location.copy();
     
     if ((Math.abs(lastBranch.x - newLocation.x) >= branchDistance) ||
         (Math.abs(lastBranch.y - newLocation.y) >= branchDistance))
     {
-      lastBranch = newLocation;
+      lastBranch = newLocation.copy();
       
       PVector offset = new PVector(newLocation.x - width / 2,
                                    newLocation.y - height / 2);
       double distFromCenter = sqrt((offset.x * offset.x) + (offset.y * offset.y));
       if (distFromCenter <= (width / 2 - margin * 2))
       {
-        double branchAngle = random(branchAngleMaxRange - branchAngleMinRange) + branchAngleMinRange;
-        Agent newAgent = new Agent(direction + branchAngle, speed, newLocation, branchDistance);
+        float branchAngle = random(branchAngleMaxRange - branchAngleMinRange) + branchAngleMinRange;
+        PVector newVelocity = velocity.copy();
+        newVelocity.rotate((float)Math.toRadians(branchAngle));
+        Agent newAgent = new Agent(newVelocity, newLocation, branchDistance);
         nextStepAgents.add(newAgent);
       }
     }
@@ -161,7 +159,10 @@ void setup()
   int startCount = (int)(random(maxStartingAgents - minStartingAgents) + minStartingAgents);
   for (int i = 0; i < startCount; ++i)
   {
-    Agent agent = new Agent(random(359), speed, new PVector(width / 2, height / 2), branchDist);
+    float startAngle = random(360);
+    PVector velocity = PVector.fromAngle((float)Math.toRadians(startAngle));
+    velocity.setMag(speed);
+    Agent agent = new Agent(velocity, new PVector(width / 2, height / 2), branchDist);
     agents.add(agent);
   }
 }
