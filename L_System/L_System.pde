@@ -6,7 +6,20 @@ LSystem ls;
 void setup() 
 {
   size(800, 800);
-  createTreeLSystem();
+  createFernLSystem();
+}
+
+void createFernLSystem()
+{
+  ls = new LSystem("X");
+  ls.addRule('X', "FL[[X]RX]RF[RFX]LX");
+  ls.addRule('F', "FF");
+  
+  ls.addInstruction('F', new DrawLine(-4.5));
+  ls.addInstruction('R', new Rotate(-25));
+  ls.addInstruction('L', new Rotate(25));
+  ls.addInstruction('[', new Push());
+  ls.addInstruction(']', new Pop());
 }
 
 void createTreeLSystem()
@@ -14,8 +27,8 @@ void createTreeLSystem()
   ls = new LSystem("0");
   ls.addRule('1', "11");
   ls.addRule('0', "1[0]0");
-  ls.addInstruction('0', new DrawLine(-5));
-  ls.addInstruction('1', new DrawLine(-5));
+  ls.addInstruction('0', new DrawLine(5));
+  ls.addInstruction('1', new DrawLine(5));
   ls.addInstruction('[', new PushAndRotate(45));
   ls.addInstruction(']', new PopAndRotate(-45));
 }
@@ -23,7 +36,7 @@ void createTreeLSystem()
 void draw() 
 {
   translate(width / 2, height);
-  ls.renderGeneration(7);
+  ls.renderGeneration(6);
 }
 
 public static interface Instruction
@@ -96,9 +109,9 @@ class LSystem
 
 class DrawLine implements Instruction
 {
-  int lineLength;
+  float lineLength;
   
-  DrawLine(int lineLength)
+  DrawLine(float lineLength)
   {
     this.lineLength = lineLength;
   }
@@ -112,34 +125,67 @@ class DrawLine implements Instruction
   }
 }
 
-class PushAndRotate implements Instruction
+class Push implements Instruction
+{
+  void execute(LSystem lSystem)
+  {
+    pushMatrix();
+  }
+}
+
+class Pop implements Instruction
+{
+  void execute(LSystem lSystem)
+  {
+    popMatrix();
+  }
+}
+
+class Rotate implements Instruction
 {
   float theta;
   
-  PushAndRotate(int theta)
+  public Rotate(float theta)
   {
     this.theta = (float)Math.toRadians(theta);
   }
   
   void execute(LSystem lSystem)
   {
-    pushMatrix();
     rotate(theta);
   }
 }
 
-class PopAndRotate implements Instruction
+class CompositeInstruction implements Instruction
 {
-  float theta;
+  Instruction instructions[];
   
-  PopAndRotate(int theta)
+  public CompositeInstruction(Instruction instructions[])
   {
-    this.theta = (float)Math.toRadians(theta);
+    this.instructions = instructions;
   }
   
   void execute(LSystem lSystem)
   {
-    popMatrix();
-    rotate(theta);
+    for (Instruction instruction : instructions)
+    {
+      instruction.execute(lSystem);
+    }
+  }
+}
+
+class PushAndRotate extends CompositeInstruction
+{
+  PushAndRotate(float theta)
+  {
+    super(new Instruction[] { new Push(), new Rotate(theta) });
+  }
+}
+
+class PopAndRotate extends CompositeInstruction
+{
+  PopAndRotate(float theta)
+  {
+    super(new Instruction[] { new Pop(), new Rotate(theta) });
   }
 }
