@@ -32,7 +32,7 @@ PVector segIntersection(float x1, float y1, float x2, float y2, float x3, float 
 
 void setup()
 {
-  size(1000,800,P2D);
+  size(1400,1000,P2D);
   int seed = (int)random(23039203);
   println("Seed: " + seed);
 
@@ -149,5 +149,6 @@ void draw()
   if (iteration > 200)
   {
     noLoop();
+    saveFrame();
   }
 }
