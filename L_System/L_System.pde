@@ -37,6 +37,8 @@ void draw()
 {
   translate(width / 2, height);
   ls.renderGeneration(6);
+  noLoop();
+  saveFrame();
 }
 
 public static interface Instruction
