@@ -6,6 +6,11 @@ LSystem ls;
 void setup() 
 {
   size(800, 800);
+  createTreeLSystem();
+}
+
+void createTreeLSystem()
+{
   ls = new LSystem("0");
   ls.addRule('1', "11");
   ls.addRule('0', "1[0]0");
