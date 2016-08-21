@@ -6,7 +6,7 @@ LSystem ls;
 void setup() 
 {
   size(800, 800);
-  createFernLSystem();
+  createTreeLSystem();
 }
 
 void createFernLSystem()
@@ -27,8 +27,8 @@ void createTreeLSystem()
   ls = new LSystem("0");
   ls.addRule('1', "11");
   ls.addRule('0', "1[0]0");
-  ls.addInstruction('0', new DrawLine(5));
-  ls.addInstruction('1', new DrawLine(5));
+  ls.addInstruction('0', new DrawLine(-5));
+  ls.addInstruction('1', new DrawLine(-5));
   ls.addInstruction('[', new PushAndRotate(45));
   ls.addInstruction(']', new PopAndRotate(-45));
 }
