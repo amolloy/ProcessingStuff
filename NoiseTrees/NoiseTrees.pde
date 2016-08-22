@@ -5,11 +5,20 @@ color PickColor()
 {
   color[] colors = { #BFB7AB,
                      #A89B8E,
-                     #919390,
+                     #EAE9E7,
+                     #EAEAEA,
+                     #EAE9E7,
+                     #EAEAEA,
+                     #EAE9E7,
+                     #EAEAEA,
+                     #EAE9E7,
+                     #EAEAEA,
+                     #EAE9E7,
+                     #EAEAEA,
                      #EAE9E7,
                      #EAEAEA
                    };
-  int colorIndex = (int)(randomGaussian() * colors.length);
+  int colorIndex = (int)(random(colors.length));
   colorIndex = min(colors.length - 1, max(0, colorIndex));
   return colors[colorIndex];
 }
