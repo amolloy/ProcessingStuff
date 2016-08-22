@@ -1,3 +1,7 @@
+final int tintAmount = 254;
+final color backgroundColor = #C6D3D2;
+final int pushBack = 5;
+
 TreeBranch baseBranch = null;
 PImage transformBuffer = null;
 
@@ -28,7 +32,7 @@ void setup()
   size(1500, 800);
   baseBranch = new TreeBranch(width / 2, 60, 0.0001);
   transformBuffer = createImage(width, height, RGB);
-  background(0);
+  background(backgroundColor);
   stroke(PickColor());
 }
 
@@ -155,10 +159,11 @@ void draw()
         loadPixels();
         transformBuffer.pixels = pixels;
         transformBuffer.updatePixels();
-        background(0);
-        tint(250);
-        
-        final int pushBack = 5;
+        background(backgroundColor);
+        if (tintAmount >= 0)
+        {
+          tint(tintAmount);
+        }
         
         image(transformBuffer, pushBack / 2, pushBack / 2, width - pushBack, height - pushBack / 2);
   
