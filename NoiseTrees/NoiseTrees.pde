@@ -73,11 +73,18 @@ class TreeBranch
     }
     
     PVector direction = point.copy().sub(lastPoint);
+    float magnitude = direction.mag();
+    
+    float lineWidth = magnitude * 0.5;
+    lineWidth = min(5, max(1, lineWidth));
+    strokeWeight(lineWidth);
+    
     PVector perp = new PVector(-direction.y, direction.x).normalize();
     
     PVector base = new PVector(point.x, point.y);
     PVector side1 = perp.copy().mult(currentWidth / 2).add(base);
     PVector side2 = perp.copy().mult(-currentWidth / 2).add(base);
+    
     
     line(side1.x, side1.y, side2.x, side2.y);
     
