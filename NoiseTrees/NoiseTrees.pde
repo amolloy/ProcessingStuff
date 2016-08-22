@@ -1,9 +1,26 @@
 TreeBranch baseBranch = null;
+PImage transformBuffer = null;
+
+color PickColor()
+{
+  color[] colors = { #BFB7AB,
+                     #A89B8E,
+                     #919390,
+                     #EAE9E7,
+                     #EAEAEA
+                   };
+  int colorIndex = (int)(randomGaussian() * colors.length);
+  colorIndex = min(colors.length - 1, max(0, colorIndex));
+  return colors[colorIndex];
+}
 
 void setup()
 {
-  size(800, 800);
-  baseBranch = new TreeBranch(width / 2, 40, 0.0001);
+  size(1500, 800);
+  baseBranch = new TreeBranch(width / 2, 60, 0.0001);
+  transformBuffer = createImage(width, height, RGB);
+  background(0);
+  stroke(PickColor());
 }
 
 class TreeBranch
@@ -76,22 +93,24 @@ class TreeBranch
 
     if (points != null)
     {
-      int count = min(50, points.size());
-      
-      int outsideBoundsCount = 0;
-      for (int i = 1; i <= count; ++i)
+      int count = points.size();
+      if (count > 50)
       {
-        PVector point = points.get(points.size() - i);
-        if (point.x < 0 || point.x > width ||
-            point.y < 0 || point.y > height)
+        int outsideBoundsCount = 0;
+        for (int i = 1; i <= count; ++i)
         {
-          outsideBoundsCount+= 1;
+          PVector point = points.get(points.size() - i);
+          if (point.x < -50 || point.x > (width + 50) ||
+              point.y < -50 || point.y > (height + 50))
+          {
+            outsideBoundsCount+= 1;
+          }
         }
-      }
       
-      if (outsideBoundsCount > 8)
-      {
-        done = true;
+        if (outsideBoundsCount > 40)
+        {
+          done = true;
+        }
       }
     }
     
@@ -99,16 +118,42 @@ class TreeBranch
   }
 }
 
+int treeCount = 0;
+
 void draw()
 {
-  for (int i = 0; i < 5; ++i)
+  for (int i = 0; i < 20; ++i)
   {
     baseBranch.step();
     
     if (baseBranch.done())
     {
-      println("Done");
-      noLoop();
+      treeCount+= 1;
+      if (treeCount > 100)
+      {
+        println("Done.");
+        noLoop();
+      }
+      else
+      {
+        loadPixels();
+        transformBuffer.pixels = pixels;
+        transformBuffer.updatePixels();
+        background(0);
+        tint(254);
+        
+        final int pushBack = 5;
+        
+        image(transformBuffer, pushBack / 2, pushBack / 2, width - pushBack, height - pushBack / 2);
+  
+        stroke(PickColor());
+        
+        baseBranch = new TreeBranch((int)(randomGaussian() * width * 0.8 + width * 0.1), 
+                                    (int)(randomGaussian() * 50 + 20),
+                                    0.0001);
+      }
     }
   }
+  
+  saveFrame();
 }
