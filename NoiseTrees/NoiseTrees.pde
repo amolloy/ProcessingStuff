@@ -136,7 +136,7 @@ void draw()
     if (baseBranch.done())
     {
       treeCount+= 1;
-      if (treeCount > 100)
+      if (treeCount > 200)
       {
         println("Done.");
         noLoop();
