@@ -156,7 +156,7 @@ void draw()
         transformBuffer.pixels = pixels;
         transformBuffer.updatePixels();
         background(0);
-        tint(254);
+        tint(250);
         
         final int pushBack = 5;
         
