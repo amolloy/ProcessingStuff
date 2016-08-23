@@ -98,18 +98,15 @@ class TreeBranch
     side1.z = depth;
     side2.z = depth;
     
-    float jitterAmount = max(0, (10.0 - depth) / 10.0);
-    float colorAdjust = 0.25 * (1 - jitterAmount) + 0.75;
+    float jitterAmount = max(0, (20.0 - depth) / 20.0);
+    color baseColor = lerpColor(theColor, backgroundColor, jitterAmount * jitterAmount);
 
-    color baseColor = color(red(theColor) * colorAdjust,
-                            green(theColor) * colorAdjust,
-                            blue(theColor) * colorAdjust);
-
-    fill(color(red(baseColor), green(baseColor), blue(baseColor), 0xF0));
+    stroke(color(red(baseColor), green(baseColor), blue(baseColor), 0xF0));
     camera();
-    litLine(side1, side2, lineWidth, new PVector(0,0,1));
+    strokeWeight(lineWidth);
+    line(side1.x, side1.y, side1.z, side2.x, side2.y, side2.z);
 
-    fill(color(red(baseColor), green(baseColor), blue(baseColor), 0xFF / 10));
+    stroke(color(red(baseColor), green(baseColor), blue(baseColor), 0xFF / 10));
 
     jitterAmount*= 6;
     for (int i = 0; i < 10; ++i)
@@ -118,7 +115,7 @@ class TreeBranch
       jitteredEye.x+= random(-jitterAmount, jitterAmount);
       jitteredEye.y+= random(-jitterAmount, jitterAmount);
       camera(jitteredEye.x, jitteredEye.y, jitteredEye.z, width/2.0, height/2.0, 0, 0, 1, 0);
-      litLine(side1, side2, lineWidth, new PVector(0,0,1));
+      line(side1.x, side1.y, side1.z, side2.x, side2.y, side2.z);
     } 
     
     growVector.x+= horizontalForce;
@@ -160,38 +157,8 @@ class TreeBranch
 
 int treeCount = 0;
 
-void litLine(PVector v0, PVector v1, float lineWidth, PVector viewVector)
-{
-  PVector offset = v1.copy().sub(v0);
-  offset.normalize();
-          
-  PVector right = offset.copy().cross(viewVector);
-  right.normalize();
-  right.mult(lineWidth);
-          
-  PVector nrm = viewVector.copy().mult(-1);
-          
-  beginShape( QUADS );
-
-  normal   ( nrm.x,           nrm.y,           nrm.z          );
-  vertex   ( v1.x,            v1.y,            v1.z           );
-    
-  normal   ( nrm.x,           nrm.y,           nrm.z          );
-  vertex   ( v0.x,            v0.y,            v0.z           );
-    
-  normal   ( nrm.x,           nrm.y,           nrm.z          );
-  vertex   ( v0.x + right.x,  v0.y + right.y,  v0.z + right.z );
-    
-  normal   ( nrm.x,           nrm.y,           nrm.z          );
-  vertex   ( v1.x + right.x,  v1.y + right.y,  v1.z + right.z );
-
-  endShape();
-}
 void draw()
 {
-  lightFalloff(1.0, 0.001, 0.0);
-  ambientLight(255,255,255);
-  
   for (int i = 0; i < 20; ++i)
   {
     baseBranch.step();
@@ -209,7 +176,7 @@ void draw()
       {
         float oldDepth = baseBranch.depth;
         baseBranch = new TreeBranch((int)(randomGaussian() * width * 0.8 + width * 0.1), 
-                                    (int)(randomGaussian() * 50 + 20),
+                                    (int)(randomGaussian() * 40 + 20),
                                     0.0001,
                                     oldDepth + random(0.3),
                                     PickColor());
