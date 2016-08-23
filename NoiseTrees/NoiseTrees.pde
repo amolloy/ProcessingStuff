@@ -186,7 +186,7 @@ void draw()
       if (treeCount > 100)
       {
         println("Done.");
-        saveFrame();
+        save("trees.jpg");
         noLoop();
       }
       else
