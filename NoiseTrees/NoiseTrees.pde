@@ -12,6 +12,10 @@ color PickColor()
                      #A89B8E,
                      #EAE9E7,
                      #EAEAEA,
+                     #8D9A86,
+                     #D09C70,
+                     #B08375,
+                     #AB8A59
                    };
   int colorIndex = (int)(random(colors.length));
   colorIndex = min(colors.length - 1, max(0, colorIndex));
