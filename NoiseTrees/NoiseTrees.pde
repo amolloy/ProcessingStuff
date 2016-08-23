@@ -186,23 +186,11 @@ void draw()
       if (treeCount > 100)
       {
         println("Done.");
+        saveFrame();
         noLoop();
       }
       else
       {
-        /*
-        loadPixels();
-        transformBuffer.pixels = pixels;
-        transformBuffer.updatePixels();
-        background(backgroundColor);
-        if (tintAmount >= 0)
-        {
-          tint(tintAmount);
-        }
-        
-        image(transformBuffer, pushBack / 2, pushBack / 2, width - pushBack, height - pushBack / 2);
-        */
-        
         fill(PickColor());
         
         float oldDepth = baseBranch.depth;
@@ -213,6 +201,4 @@ void draw()
       }
     }
   }
-  
-  saveFrame();
 }
