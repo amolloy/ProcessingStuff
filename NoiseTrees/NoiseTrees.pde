@@ -17,18 +17,16 @@ color PickColor()
                    };
   int colorIndex = (int)(random(colors.length));
   colorIndex = min(colors.length - 1, max(0, colorIndex));
-  color c = colors[colorIndex];
-  return color(red(c), green(c), blue(c), 0xFF / 10);
+  return colors[colorIndex];
 }
 
 void setup()
 {
   size(1500, 800, P3D);
   perspective();
-  baseBranch = new TreeBranch(width / 2, 60, 0.0001, -1);
+  baseBranch = new TreeBranch(width / 2, 60, 0.0001, -1, PickColor());
   transformBuffer = createImage(width, height, RGB);
   background(backgroundColor);
-  fill(PickColor());
   noStroke();
   eye = new PVector(width / 2.0, height / 2.0,  (height/2.0) / tan(PI*30.0 / 180.0));
 }
@@ -42,8 +40,9 @@ class TreeBranch
   float horizontalForce;
   PVector growVector;
   float depth;
+  color theColor;
   
-  public TreeBranch(int startX, int startWidth, float startHorizontalForce, float depth)
+  public TreeBranch(int startX, int startWidth, float startHorizontalForce, float depth, color theColor)
   {
     this.startX = startX;
     this.startWidth = startWidth;
@@ -51,6 +50,7 @@ class TreeBranch
     this.growVector = new PVector(0, -1);
     this.horizontalForce = startHorizontalForce;
     this.depth = depth;
+    this.theColor = theColor;
   }
   
   PVector lastPoint()
@@ -99,6 +99,18 @@ class TreeBranch
     side2.z = depth;
     
     float jitterAmount = max(0, (10.0 - depth) / 10.0);
+    float colorAdjust = 0.25 * (1 - jitterAmount) + 0.75;
+
+    color baseColor = color(red(theColor) * colorAdjust,
+                            green(theColor) * colorAdjust,
+                            blue(theColor) * colorAdjust);
+
+    fill(color(red(baseColor), green(baseColor), blue(baseColor), 0xF0));
+    camera();
+    litLine(side1, side2, lineWidth, new PVector(0,0,1));
+
+    fill(color(red(baseColor), green(baseColor), blue(baseColor), 0xFF / 10));
+
     jitterAmount*= 6;
     for (int i = 0; i < 10; ++i)
     {
@@ -195,13 +207,12 @@ void draw()
       }
       else
       {
-        fill(PickColor());
-        
         float oldDepth = baseBranch.depth;
         baseBranch = new TreeBranch((int)(randomGaussian() * width * 0.8 + width * 0.1), 
                                     (int)(randomGaussian() * 50 + 20),
                                     0.0001,
-                                    oldDepth + random(0.3));
+                                    oldDepth + random(0.3),
+                                    PickColor());
       }
     }
   }
