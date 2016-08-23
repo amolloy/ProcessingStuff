@@ -1,6 +1,5 @@
-final int tintAmount = 254;
 final color backgroundColor = #C6D3D2;
-final int pushBack = 5;
+final int iterations = 150;
 PVector eye = null;
 
 TreeBranch baseBranch = null;
@@ -187,7 +186,7 @@ void draw()
     if (baseBranch.done())
     {
       treeCount+= 1;
-      if (treeCount > 100)
+      if (treeCount > iterations)
       {
         println("Done.");
         save("trees.jpg");
