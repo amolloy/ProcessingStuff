@@ -18,7 +18,7 @@ color PickColor()
   int colorIndex = (int)(random(colors.length));
   colorIndex = min(colors.length - 1, max(0, colorIndex));
   color c = colors[colorIndex];
-  return color(red(c), green(c), blue(c), 0xAA);
+  return color(red(c), green(c), blue(c), 0xFF / 10);
 }
 
 void setup()
@@ -98,11 +98,13 @@ class TreeBranch
     side1.z = depth;
     side2.z = depth;
     
-    for (int i = 0; i < 3; ++i)
+    float jitterAmount = max(0, (10.0 - depth) / 10.0);
+    jitterAmount*= 6;
+    for (int i = 0; i < 10; ++i)
     {
       PVector jitteredEye = eye.copy();
-      jitteredEye.x+= random(-5, 5);
-      jitteredEye.y+= random(-5, 5);
+      jitteredEye.x+= random(-jitterAmount, jitterAmount);
+      jitteredEye.y+= random(-jitterAmount, jitterAmount);
       camera(jitteredEye.x, jitteredEye.y, jitteredEye.z, width/2.0, height/2.0, 0, 0, 1, 0);
       litLine(side1, side2, lineWidth, new PVector(0,0,1));
     } 
