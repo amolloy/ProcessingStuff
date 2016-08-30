@@ -1,6 +1,7 @@
 final color backgroundColor = #C6D3D2;
 final int iterations = 150;
 PVector eye = null;
+final float shf = 0.000001;
 
 TreeBranch baseBranch = null;
 PImage transformBuffer = null;
@@ -24,7 +25,7 @@ void setup()
 {
   size(1500, 800, P3D);
   perspective();
-  baseBranch = new TreeBranch(width / 2, 60, 0.0001, -1, PickColor());
+  baseBranch = new TreeBranch(width / 2, 60, shf, -1, PickColor());
   transformBuffer = createImage(width, height, RGB);
   background(backgroundColor);
   noStroke();
@@ -177,7 +178,7 @@ void draw()
         float oldDepth = baseBranch.depth;
         baseBranch = new TreeBranch((int)(randomGaussian() * width * 0.8 + width * 0.1), 
                                     (int)(randomGaussian() * 40 + 20),
-                                    0.0001,
+                                    shf,
                                     oldDepth + random(0.3),
                                     PickColor());
       }
