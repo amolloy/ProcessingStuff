@@ -1,4 +1,4 @@
-final int numBirds = 50;
+final int numBirds = 500;
 final int worldSize = 1000;
 final float maxSpeed     = 100.0f;
 final float minUrgency   = 40.0f;
@@ -12,6 +12,26 @@ final float nearbyDist = 500;
 final float nearbyDistSq = nearbyDist * nearbyDist;
 final float nearbyAngle = 120;
 final float nearbyAngleRadians = nearbyAngle * PI / 180.0;
+
+final color colors[] = {#FF15A9,
+#D51059,
+#FD4327,
+#E52717,
+#811A15,
+#431A13,
+#3D0D56,
+#3D0D56,
+#0D175F,
+#005E80,
+#0091C1,
+#0B3518,
+#00570E,
+#007314,
+#00B000,
+#75C300,
+#FCE300,
+#FFB000
+};
 
 Boolean drawTracers = false;
 
@@ -31,13 +51,15 @@ void setup()
   {
     PVector sPos = worldBounds.randomPointInBounds(250);
     PVector sVel = (new PVector(random(2) - 1, random(2) - 1, random(2) - 1)).normalize().mult(desiredSpeed);
+    int colorIndex = int(random(colors.length));
     Bird bird = new Bird(sPos, 
       sVel, 
       desiredSpeed, 
       maxSpeed, 
       minUrgency, 
       maxUrgency, 
-      minFriendDist);
+      minFriendDist,
+      colors[colorIndex]);
     flock.birds.add(bird);
   }
 
@@ -47,7 +69,8 @@ void setup()
                        maxSpeed,
                        minUrgency,
                        maxUrgency,
-                       minFriendDist);
+                       minFriendDist,
+                       #FF0000);
   bird.behaviors.add(new CircleBehavior(new PVector(), 450));
   flock.birds.add(bird);
   flock.leader = bird;
@@ -78,13 +101,19 @@ void draw()
   camera(0, 0, -worldSize * 3, 0, 0, 0, 0, 1, 0);
 
 //  worldBounds.draw();
+
+  float alphaRange = abs(worldBounds.back() - worldBounds.front());
+
   if (drawTracers)
   {
     for (Bird b : flock.birds)
     {
       if (b != flock.leader)
       {
-        stroke(255, 128);
+        float alpha = b.pos.z / alphaRange;
+        alpha = max(0.25, min(alpha, 0.75));
+        
+        stroke(b.c, (1 - alpha) * 0xFF);
         line(b.oldPos.x, b.oldPos.y, b.oldPos.z, b.pos.x, b.pos.y, b.pos.z);
       }
     }
@@ -93,15 +122,7 @@ void draw()
   {
     for (Bird b : flock.birds)
     {
-      if (b == flock.leader)
-      {
-        stroke(255, 0, 0, 128);
-      }
-      else
-      {
-        stroke(255, 128);
-      }
-    
+      stroke(b.c);
       pushMatrix();
       translate(b.pos.x, b.pos.y, b.pos.z);
       box(4);
@@ -239,6 +260,7 @@ class Bird
   final float minUrgency;
   final float maxUrgency;
   final float minFriendDistance;
+  color c;
 
   Bird(PVector inPos, 
     PVector inVel, 
@@ -246,7 +268,8 @@ class Bird
     float maxSpeed, 
     float minUrgency, 
     float maxUrgency, 
-    float minFriendDistance)
+    float minFriendDistance, 
+    color c)
   {
     this.pos = inPos.copy();
     this.vel = inVel.copy();
@@ -257,6 +280,7 @@ class Bird
     this.minFriendDistance = minFriendDistance;
     pushPositionAndVelocity();
     behaviors = new ArrayList();
+    this.c = c;
   }
 
   void pushPositionAndVelocity()
