@@ -1,4 +1,4 @@
-final int numBirds = 500;
+final int numBirds = 50;
 final int worldSize = 1000;
 final float maxSpeed     = 100.0f;
 final float minUrgency   = 40.0f;
@@ -6,12 +6,14 @@ final float maxUrgency   = 100.0f;
 final float maxChange    = (maxSpeed * maxUrgency);
 final float desiredSpeed = (maxSpeed / 2);
 
-final float minFriendDist = 200;
+final float minFriendDist = 250;
 
 final float nearbyDist = 500;
 final float nearbyDistSq = nearbyDist * nearbyDist;
 final float nearbyAngle = 120;
 final float nearbyAngleRadians = nearbyAngle * PI / 180.0;
+
+Boolean drawTracers = false;
 
 Flock flock;
 Bounds worldBounds = new Bounds(new PVector(-worldSize, worldSize, worldSize), 
@@ -39,35 +41,80 @@ void setup()
     flock.birds.add(bird);
   }
 
+  Bird bird = new Bird(new PVector(),
+                       new PVector(),
+                       desiredSpeed,
+                       maxSpeed,
+                       minUrgency,
+                       maxUrgency,
+                       minFriendDist);
+  bird.behaviors.add(new CircleBehavior(new PVector(), 450));
+  flock.birds.add(bird);
+  flock.leader = bird;
+
   flock.behaviors.add(new MatchHeadingBehavior());
   flock.behaviors.add(new CruisingBehavior());
   flock.behaviors.add(new KeepDistanceBehavior());
   flock.behaviors.add(new AvoidBoundsBehavior(worldBounds, 200));
+  flock.behaviors.add(new FollowTheLeaderBehavior(flock.leader));
 
   lastFrameTime = millis();
 }
 
+void mousePressed()
+{
+  drawTracers = !drawTracers;
+  background(0);
+}
+
 void draw()
 {
-  background(0);
-  stroke(255, 128);
+  if (!drawTracers)
+  {
+    background(0);
+  }
 
   frustum(-1.6, 1.6, -1.6, 1.6, 4, worldSize * 10);
   camera(0, 0, -worldSize * 3, 0, 0, 0, 0, 1, 0);
 
-  worldBounds.draw();
-  for (Bird b : flock.birds)
+//  worldBounds.draw();
+  if (drawTracers)
   {
-    pushMatrix();
-    translate(b.pos.x, b.pos.y, b.pos.z);
-    box(4);
-    popMatrix();
-}
+    for (Bird b : flock.birds)
+    {
+      if (b != flock.leader)
+      {
+        stroke(255, 128);
+        line(b.oldPos.x, b.oldPos.y, b.oldPos.z, b.pos.x, b.pos.y, b.pos.z);
+      }
+    }
+  }
+  else
+  {
+    for (Bird b : flock.birds)
+    {
+      if (b == flock.leader)
+      {
+        stroke(255, 0, 0, 128);
+      }
+      else
+      {
+        stroke(255, 128);
+      }
+    
+      pushMatrix();
+      translate(b.pos.x, b.pos.y, b.pos.z);
+      box(4);
+      popMatrix();
+    }
+  }
   int m = millis();
   int delta = m - lastFrameTime;
   float deltaS = delta / 1000.0;
   flock.update(deltaS);
   lastFrameTime = m;
+  
+  //noLoop();
 }
 
 class Bounds
@@ -98,7 +145,7 @@ class Bounds
   }
   float left()
   {
-    return leftBottomBack.x;
+    return leftBottomBack.x; //<>//
   }
   float right()
   {
@@ -117,7 +164,7 @@ class Bounds
   {
     return new PVector(leftBottomBack.x, leftBottomBack.y, rightTopFront.z);
   }
-
+ //<>//
   final PVector leftTopFront()
   {
     return new PVector(leftBottomBack.x, rightTopFront.y, rightTopFront.z);
@@ -145,7 +192,7 @@ class Bounds
 
   final PVector rightTopBack()
   {
-    return new PVector(rightTopFront.x, rightTopFront.y, leftBottomBack.z); //<>//
+    return new PVector(rightTopFront.x, rightTopFront.y, leftBottomBack.z);
   }
 
   final PVector rightBottomBack()
@@ -164,7 +211,7 @@ class Bounds
     line2(leftTopBack(), leftTopFront());
     line2(leftTopFront(), rightTopFront());
     line2(rightTopBack(), rightTopFront());
-    line2(leftTopBack(), leftBottomBack()); //<>//
+    line2(leftTopBack(), leftBottomBack());
     line2(rightTopBack(), rightBottomBack());
     line2(leftTopFront(), leftBottomFront());
     line2(rightTopFront(), rightBottomFront());
@@ -209,6 +256,7 @@ class Bird
     this.maxUrgency = maxUrgency;
     this.minFriendDistance = minFriendDistance;
     pushPositionAndVelocity();
+    behaviors = new ArrayList();
   }
 
   void pushPositionAndVelocity()
@@ -229,11 +277,13 @@ class Flock
 {
   ArrayList<Bird> birds;
   ArrayList<BirdBehavior> behaviors;
+  Bird leader;
 
   Flock()
   {
     birds = new ArrayList();
     behaviors = new ArrayList();
+    leader = null;
   }
 
   void update(float elapsed)
@@ -257,17 +307,17 @@ class Flock
 
       PVector steering = new PVector();
 
-      for (BirdBehavior behavior : behaviors) //<>//
+      if (b != leader)
       {
-        steering.add(behavior.steeringContribution(b, nearbyBirds));
-      }
-
-      if (b.behaviors != null)
-      {
-        for (BirdBehavior behavior : b.behaviors)
+        for (BirdBehavior behavior : behaviors)
         {
           steering.add(behavior.steeringContribution(b, nearbyBirds));
         }
+      }
+
+      for (BirdBehavior behavior : b.behaviors)
+      {
+        steering.add(behavior.steeringContribution(b, nearbyBirds));
       }
 
       steering.limit(maxChange);
@@ -352,6 +402,23 @@ class MatchHeadingBehavior implements BirdBehavior
   }
 }
 
+class FollowTheLeaderBehavior implements BirdBehavior
+{
+  Bird leader;
+  
+  FollowTheLeaderBehavior(Bird leader)
+  {
+    this.leader = leader;
+  }
+  
+  PVector steeringContribution(Bird bird, ArrayList<Bird> nearbyBirds)
+  {
+    PVector change = PVector.sub(leader.oldPos, bird.oldPos);
+    change.normalize().mult(minUrgency);
+    return change;
+  }
+}
+
 class CruisingBehavior implements BirdBehavior
 {
   PVector steeringContribution(Bird bird, ArrayList<Bird> nearbyBirds)
@@ -388,7 +455,8 @@ class KeepDistanceBehavior implements BirdBehavior
       {
         closestFriend = b;
         minDistSq = PVector.sub(closestFriend.oldPos, bird.oldPos).magSq();
-      } else
+      } 
+      else
       {
         float distSq = PVector.sub(b.oldPos, bird.oldPos).magSq();
         if (distSq < minDistSq)
@@ -430,5 +498,61 @@ class KeepDistanceBehavior implements BirdBehavior
     }
 
     return change;
+  }
+}
+
+class CircleBehavior implements BirdBehavior
+{
+  PVector center;
+  float radius;
+  
+  CircleBehavior(PVector center, float radius)
+  {
+    this.center = center;
+    this.radius = radius;
+  }
+ 
+  PVector steeringContribution(Bird bird, ArrayList<Bird> nearbyBirds)
+  {
+    PVector oldPosXY = bird.oldPos.copy();
+    oldPosXY.z = 0;
+    PVector centerXY = center.copy();
+    centerXY.z = 0;
+
+    PVector steering = new PVector();
+
+    PVector d = PVector.sub(oldPosXY, centerXY);
+    float distanceFromCircle = d.mag();
+    if (distanceFromCircle < radius)
+    {
+      steering.add(PVector.sub(oldPosXY, new PVector(centerXY.x, centerXY.y + 1, centerXY.z)));
+    }
+    else if (distanceFromCircle > radius * 1.1)
+    {
+      float a = asin(radius / distanceFromCircle);
+      float b = atan2(d.y, d.x);
+      float t = b - a;
+      PVector ta = new PVector(radius * sin(t), radius * -cos(t), centerXY.z);
+      
+      PVector dta = PVector.sub(ta, oldPosXY);
+      
+      steering = dta;
+    }
+    else
+    {
+      steering = PVector.sub(oldPosXY, centerXY);
+    }
+    
+    float distFromPlane = bird.oldPos.z - center.z;
+    if (distFromPlane > 10)
+    {
+      steering.sub(0, 0, distFromPlane);
+    }
+
+    steering.normalize().mult(bird.desiredSpeed);
+    
+    //println(distanceFromCircle, distFromPlane, steering);
+    
+    return steering;
   }
 }
