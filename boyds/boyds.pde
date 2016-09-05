@@ -99,8 +99,39 @@ void keyPressed()
   }
 }
 
+void litLine(PVector v0, PVector v1, float lineWidth, PVector viewVector)
+{
+  PVector offset = v1.copy().sub(v0);
+  offset.normalize();
+          
+  PVector right = offset.copy().cross(viewVector);
+  right.normalize();
+  right.mult(lineWidth);
+          
+  PVector nrm = viewVector.copy().mult(-1);
+          
+  beginShape( QUADS );
+
+  normal   ( nrm.x,           nrm.y,           nrm.z          );
+  vertex   ( v1.x,            v1.y,            v1.z           );
+    
+  normal   ( nrm.x,           nrm.y,           nrm.z          );
+  vertex   ( v0.x,            v0.y,            v0.z           );
+    
+  normal   ( nrm.x,           nrm.y,           nrm.z          );
+  vertex   ( v0.x + right.x,  v0.y + right.y,  v0.z + right.z );
+    
+  normal   ( nrm.x,           nrm.y,           nrm.z          );
+  vertex   ( v1.x + right.x,  v1.y + right.y,  v1.z + right.z );
+
+  endShape();
+}
+
 void draw()
 {
+  lightFalloff(1.0, 0.001, 0.0); 
+  ambientLight(255,255,255);
+
   if (!drawTracers)
   {
     background(0);
@@ -120,11 +151,17 @@ void draw()
       if (b != flock.leader)
       {
         float alpha = b.pos.z / alphaRange;
-        alpha = max(0.25, min(alpha, 0.75));
+        alpha = max(0, min(alpha, 0.75));
         
-        stroke(b.c, (1 - alpha) * 0xFF);
-        strokeWeight(4);
-        line(b.oldPos.x, b.oldPos.y, b.oldPos.z, b.pos.x, b.pos.y, b.pos.z);
+        fill(b.c, (1 - alpha) * 0xFF);
+        noStroke();
+        float[] lookatA = camera.getLookAt();
+        PVector lookat = new PVector(lookatA[0], lookatA[1], lookatA[2]);
+        float[] posA = camera.getPosition();
+        PVector pos = new PVector(posA[0], posA[1], posA[2]);
+        litLine(b.oldPos, b.pos, 10, PVector.sub(pos, lookat));
+//        strokeWeight(4);
+//        line(b.oldPos.x, b.oldPos.y, b.oldPos.z, b.pos.x, b.pos.y, b.pos.z);
       }
     }
   }
