@@ -1,3 +1,5 @@
+import peasy.*;
+
 final int numBirds = 500;
 final int worldSize = 1000;
 final float maxSpeed     = 100.0f;
@@ -35,6 +37,8 @@ final color colors[] = {#FF15A9,
 
 Boolean drawTracers = false;
 
+PeasyCam camera;
+
 Flock flock;
 Bounds worldBounds = new Bounds(new PVector(-worldSize, worldSize, worldSize), 
   new PVector(worldSize, -worldSize, -worldSize));
@@ -45,6 +49,8 @@ void setup()
   size(800, 800, P3D);
   background(0);
   stroke(255, 255, 255, 128);
+
+  camera = new PeasyCam(this, 0, 0, 0, 2000);
 
   flock = new Flock();
   for (int i = 0; i < numBirds; ++i)
@@ -84,10 +90,13 @@ void setup()
   lastFrameTime = millis();
 }
 
-void mousePressed()
+void keyPressed()
 {
-  drawTracers = !drawTracers;
-  background(0);
+  if (key == ' ')
+  {
+    drawTracers = !drawTracers;
+    background(0);
+  }
 }
 
 void draw()
@@ -97,8 +106,8 @@ void draw()
     background(0);
   }
 
-  frustum(-1.6, 1.6, -1.6, 1.6, 4, worldSize * 10);
-  camera(0, 0, -worldSize * 3, 0, 0, 0, 0, 1, 0);
+//  frustum(-1.6, 1.6, -1.6, 1.6, 4, worldSize * 10);
+//  camera(0, 0, -worldSize * 3, 0, 0, 0, 0, 1, 0);
 
 //  worldBounds.draw();
 
