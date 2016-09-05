@@ -123,6 +123,7 @@ void draw()
         alpha = max(0.25, min(alpha, 0.75));
         
         stroke(b.c, (1 - alpha) * 0xFF);
+        strokeWeight(4);
         line(b.oldPos.x, b.oldPos.y, b.oldPos.z, b.pos.x, b.pos.y, b.pos.z);
       }
     }
