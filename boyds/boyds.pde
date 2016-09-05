@@ -267,9 +267,11 @@ class Bird
 
   Boolean canSeeBird(Bird otherBird)
   {
-    return ((this != otherBird) &&
+    Boolean csb = ((this != otherBird) &&
       (this.oldPos.copy().sub(otherBird.oldPos).magSq() < nearbyDistSq) &&
       (abs(this.oldVel.heading() - otherBird.oldVel.heading()) < nearbyAngleRadians));
+      
+    return csb;
   }
 }
 
@@ -414,7 +416,7 @@ class FollowTheLeaderBehavior implements BirdBehavior
   PVector steeringContribution(Bird bird, ArrayList<Bird> nearbyBirds)
   {
     PVector change = PVector.sub(leader.oldPos, bird.oldPos);
-    change.normalize().mult(minUrgency);
+    change.normalize().mult(minUrgency * 0.9);
     return change;
   }
 }
@@ -489,14 +491,16 @@ class KeepDistanceBehavior implements BirdBehavior
     if (minDist < bird.minFriendDistance)
     {
       change.normalize().mult(-ratio);
-    } else if (minDist > bird.minFriendDistance)
+    } 
+    else if (minDist > bird.minFriendDistance)
     {
       change.normalize().mult(ratio);
-    } else
+    } 
+    else
     {
       change.mult(0);
     }
-
+  
     return change;
   }
 }
