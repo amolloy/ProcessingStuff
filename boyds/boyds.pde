@@ -57,7 +57,7 @@ void setup()
   {
     PVector sPos = worldBounds.randomPointInBounds(250);
     PVector sVel = (new PVector(random(2) - 1, random(2) - 1, random(2) - 1)).normalize().mult(desiredSpeed);
-    int colorIndex = int(random(colors.length));
+    int colorIndex = i % colors.length;
     Bird bird = new Bird(sPos, 
       sVel, 
       desiredSpeed, 
