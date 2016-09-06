@@ -69,7 +69,7 @@ void setup()
     flock.birds.add(bird);
   }
 
-  Bird bird = new Bird(new PVector(),
+  Bird bird = new Bird(new PVector(0.1, 0, 0),
                        new PVector(),
                        desiredSpeed,
                        maxSpeed,
@@ -77,7 +77,10 @@ void setup()
                        maxUrgency,
                        minFriendDist,
                        #FF0000);
-  bird.behaviors.add(new CircleBehavior(new PVector(), 450));
+//  bird.behaviors.add(new CircleBehavior(new PVector(), 450));
+
+  ForcedLorenzAttractorBehavior lorenz = new ForcedLorenzAttractorBehavior(10, 28, 8.0 / 3.0);
+  bird.behaviors.add(lorenz);
   flock.birds.add(bird);
   flock.leader = bird;
 
@@ -629,5 +632,39 @@ class CircleBehavior implements BirdBehavior
     //println(distanceFromCircle, distFromPlane, steering);
     
     return steering;
+  }
+}
+class ForcedLorenzAttractorBehavior implements BirdBehavior
+{
+  float sigma, rho, beta;
+  PVector p;
+  
+  ForcedLorenzAttractorBehavior(float sigma, float rho, float beta)
+  {
+    this.sigma = sigma;
+    this.rho = rho;
+    this.beta = beta;
+    p = new PVector(0.1, 0, 0);
+    for (int i = 0; i <= 1000; ++i)
+    {
+      iterate();
+    }
+  }
+  
+  void iterate()
+  {
+    PVector newPos = new PVector();
+    newPos.x = p.x + 0.003 * sigma * (p.y - p.x);
+    newPos.y = p.y + 0.003 * ((rho - p.z) * p.x - p.y);
+    newPos.z = p.z + 0.003 * (p.x * p.y - beta * p.z);
+    p = newPos.copy();
+  }
+  
+  PVector steeringContribution(Bird bird, ArrayList<Bird> nearbyBirds)
+  {
+    bird.pos = p.copy().mult(20);
+    iterate();
+    
+    return new PVector();
   }
 }
