@@ -1,6 +1,6 @@
 import peasy.*;
 
-final int numBirds = 500;
+final int numBirds = 100;
 final int worldSize = 1000;
 final float maxSpeed     = 100.0f;
 final float minUrgency   = 40.0f;
@@ -46,7 +46,8 @@ int lastFrameTime;
 
 void setup()
 {
-  size(800, 800, P3D);
+//  size(800, 800, P3D);
+  fullScreen(P3D);
   background(0);
   stroke(255, 255, 255, 128);
 
@@ -634,6 +635,7 @@ class CircleBehavior implements BirdBehavior
     return steering;
   }
 }
+
 class ForcedLorenzAttractorBehavior implements BirdBehavior
 {
   float sigma, rho, beta;
