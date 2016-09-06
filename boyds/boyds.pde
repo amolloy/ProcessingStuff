@@ -487,7 +487,7 @@ class FollowTheLeaderBehavior implements BirdBehavior
   PVector steeringContribution(Bird bird, ArrayList<Bird> nearbyBirds)
   {
     PVector change = PVector.sub(leader.oldPos, bird.oldPos);
-    change.normalize().mult(minUrgency * 0.9);
+    change.normalize().mult(minUrgency * 0.25);
     return change;
   }
 }
