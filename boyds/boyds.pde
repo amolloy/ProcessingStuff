@@ -146,6 +146,7 @@ void draw()
 //  worldBounds.draw();
 
   float alphaRange = abs(worldBounds.back() - worldBounds.front());
+  noStroke();
 
   if (drawTracers)
   {
@@ -157,7 +158,6 @@ void draw()
         alpha = max(0, min(alpha, 0.75));
         
         fill(b.c, (1 - alpha) * 0xFF);
-        noStroke();
         float[] lookatA = camera.getLookAt();
         PVector lookat = new PVector(lookatA[0], lookatA[1], lookatA[2]);
         float[] posA = camera.getPosition();
@@ -172,7 +172,7 @@ void draw()
   {
     for (Bird b : flock.birds)
     {
-      stroke(b.c);
+      fill(b.c);
       pushMatrix();
       translate(b.pos.x, b.pos.y, b.pos.z);
       box(4);
