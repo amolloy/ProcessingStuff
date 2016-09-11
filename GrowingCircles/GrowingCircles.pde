@@ -20,6 +20,7 @@ class Circle
   void draw()
   {
     ellipseMode(RADIUS);
+    strokeWeight(1);
     ellipse(center.x, center.y, radius, radius);
   }
 }
@@ -37,6 +38,10 @@ class Line
   
   void draw()
   {
+    noFill();
+    float d = PVector.dist(p1, p2);
+    stroke((max(d, width * 0.25) / (width * 0.25)) * 0x7f + 0x7e);
+    strokeWeight((d / width) *10);
     line(p1.x, p1.y, p2.x, p2.y);
   }
 }
@@ -127,6 +132,12 @@ void draw()
     circles.put(c.center, c);
   }
 
+  if (circles.size() == 1)
+  {
+    circles.clear();
+    noLoop();
+  }
+
   background(0);
   noFill();
   stroke(255, 128);
@@ -134,7 +145,6 @@ void draw()
   {
     c.draw();
   }
-  stroke(255);
   for (Line l : lines)
   {
     l.draw();
