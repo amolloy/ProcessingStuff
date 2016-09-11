@@ -1,6 +1,6 @@
 import java.util.Comparator;
 
-int startingCircleCount = 5000;
+int startingCircleCount = 10000;
 
 class Circle
 {
