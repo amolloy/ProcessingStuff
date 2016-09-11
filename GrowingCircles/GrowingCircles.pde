@@ -13,10 +13,10 @@ class Circle
   {
     this(center, 0);
   }
-  
+
   PVector center;
   int radius;
-  
+
   void draw()
   {
     ellipseMode(RADIUS);
@@ -32,10 +32,10 @@ class Line
     this.p1 = p1;
     this.p2 = p2;
   }
-  
+
   PVector p1;
   PVector p2;
-  
+
   void draw()
   {
     noFill();
@@ -53,7 +53,7 @@ ArrayList<Line> lines = new ArrayList();
 void setup()
 {
   size(800, 800);
-  
+
   for (int i = 0; i < startingCircleCount; ++i)
   {
     Circle newCircle = new Circle(new PVector(random(0, width), random(0, height)));
@@ -70,7 +70,7 @@ void rebuildTree()
     centers[i] = c.center;
     i+= 1;
   }
-  
+
   tree = new KdTree(centers);
 }
 
@@ -80,49 +80,56 @@ void draw()
   {
     rebuildTree();
   }
-  
+
   Boolean treeNeedsRebuilding = false;
-  
+
   ArrayList<Circle> circlesToRemove = new ArrayList();
   ArrayList<Circle> circlesToAdd = new ArrayList();
-  
+
   for (Circle c : circles.values())
   {
     if (!circlesToRemove.contains(c))
     {
-      PVector nearestCenter = tree.getNN(c.center).pnt_nn;
-      Circle nearestCircle = circles.get(nearestCenter);
-      
-      if (nearestCenter == null)
+      ArrayList<PVector> nearestCenters = tree.getNN(c.center).pnt_nn;
+      Circle overlappingCircle = null;
+      float dist = 0;
+      for (PVector v : nearestCenters)
+      {
+        dist = PVector.dist(c.center, v);
+        overlappingCircle = circles.get(v);
+        if (dist < (c.radius + overlappingCircle.radius))
+        {
+          break;
+        }
+
+        overlappingCircle = null;
+      }
+
+      if (overlappingCircle == null)
       {
         continue;
       }
-      
-      float dist = PVector.dist(c.center, nearestCenter);
-    
-      if (dist < (c.radius + nearestCircle.radius))
-      {
-        treeNeedsRebuilding = true;
-      
-        lines.add(new Line(c.center, nearestCenter));
-      
-        circlesToRemove.add(c);
-        circlesToRemove.add(nearestCircle);
 
-        PVector p0 = c.center.copy();
-        PVector p1 = nearestCenter.copy();
-        float d = PVector.dist(p0, p1);
-        float a = (c.radius * c.radius - nearestCircle.radius * nearestCircle.radius + d * d) / (2 * d);
-  
-        PVector s1 = PVector.sub(p1, p0);
-        PVector s2 = s1.mult(a / d);
-        PVector p2 = PVector.add(p0, s2);
+      treeNeedsRebuilding = true;
 
-        circlesToAdd.add(new Circle(p2));
-      }
+      lines.add(new Line(c.center, overlappingCircle.center));
+
+      circlesToRemove.add(c);
+      circlesToRemove.add(overlappingCircle);
+
+      PVector p0 = c.center.copy();
+      PVector p1 = overlappingCircle.center.copy();
+      float d = PVector.dist(p0, p1);
+      float a = (c.radius * c.radius - overlappingCircle.radius * overlappingCircle.radius + d * d) / (2 * d);
+
+      PVector s1 = PVector.sub(p1, p0);
+      PVector s2 = s1.mult(a / d);
+      PVector p2 = PVector.add(p0, s2);
+
+      circlesToAdd.add(new Circle(p2));
     }
   }
-  
+
   for (Circle c : circlesToRemove)
   {
     circles.remove(c.center);
@@ -149,12 +156,12 @@ void draw()
   {
     l.draw();
   }
-  
+
   for (Circle c : circles.values())
   {
     c.radius += 1;
   }
-  
+
   if (treeNeedsRebuilding)
   {
     tree = null;
@@ -163,7 +170,6 @@ void draw()
 
 public static class KdTree
 {
-
   int max_depth = 0;
   KdTree.Node root;
 
@@ -285,7 +291,7 @@ public static class KdTree
 
   public static class NN {
     PVector pnt_in = null;
-    PVector pnt_nn = null;
+    ArrayList<PVector> pnt_nn = new ArrayList();
     float min_sq = Float.MAX_VALUE;
 
     public NN(PVector pnt_in) {
@@ -300,7 +306,7 @@ public static class KdTree
 
       if ( cur_sq < min_sq && cur_sq != 0) {
         min_sq = cur_sq;
-        pnt_nn = node.pnt;
+        pnt_nn.add(node.pnt);
       }
     }
   }
