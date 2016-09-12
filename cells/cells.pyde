@@ -5,18 +5,18 @@ def setup():
 def draw():
     maxDistSq = width * width + height * height
 
-#    loadPixels()
-#
-#    pts=[]
-#    for y in range(0, height):
-#        for x in range(0, width):
-#            ptc = noise(x, y)
-#            pixels[y * width + x] = color(ptc * 255.0)
-#            if ptc > 0.88:
-#                pts.append([x, y])
-#    updatePixels()
+    loadPixels()
+
+    pts=[]
+    for y in range(0, height):
+        for x in range(0, width):
+            ptc = noise(x, y)
+            pixels[y * width + x] = color(ptc * 255.0)
+            if ptc > 0.88:
+                pts.append([x, y])
+    updatePixels()
       
-#    println("Noise done.")
+    println("Noise done.")
  
       
     pts = []
