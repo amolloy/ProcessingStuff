@@ -3,7 +3,7 @@ import java.util.Collections;
 
 int startingCircleCount = 5000;
 
-final color colors[] = {#FF15A9,
+final color crayonColors[] = {#FF15A9,
 #D51059,
 #FD4327,
 #E52717,
@@ -22,6 +22,16 @@ final color colors[] = {#FF15A9,
 #FCE300,
 #FFB000
 };
+
+final color rainColors[] = {#6FCFFF,
+#003666,
+#006666,
+#1FB0C3,
+#DBDBDB
+};
+
+final color colors[] = rainColors;
+
 
 PShader radialGradient;
 
@@ -52,7 +62,7 @@ class Circle
     shader(radialGradient);
 
     radialGradient.set("innerColor", r, g, b, 1);
-    radialGradient.set("outerColor", r, g, b, 0.1);
+    radialGradient.set("outerColor", r, g, b, 0);
     radialGradient.set("radius", (float)max(radius, 1));
   
     fill(0);
