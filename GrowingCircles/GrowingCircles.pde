@@ -1,62 +1,81 @@
 import java.util.Comparator;
+import java.util.Collections;
 
-int startingCircleCount = 10000;
+int startingCircleCount = 5000;
+
+final color colors[] = {#FF15A9,
+#D51059,
+#FD4327,
+#E52717,
+#811A15,
+#431A13,
+#3D0D56,
+#3D0D56,
+#0D175F,
+#005E80,
+#0091C1,
+#0B3518,
+#00570E,
+#007314,
+#00B000,
+#75C300,
+#FCE300,
+#FFB000
+};
+
+PShader radialGradient;
 
 class Circle
 {
-  Circle(PVector center, int radius)
+  Circle(PVector center, color c, int radius)
   {
     this.center = center.copy();
+    this.c = c;
     this.radius = radius;
   }
-  Circle(PVector center)
+  Circle(PVector center, color c)
   {
-    this(center, 0);
+    this(center, c, 0);
   }
 
   PVector center;
   int radius;
+  color c;
 
   void draw()
   {
-    ellipseMode(RADIUS);
-    strokeWeight(1);
-    ellipse(center.x, center.y, radius, radius);
-  }
-}
+    float r = (c >> 16 & 0xFF) / (float)0xFF;
+    float g = (c >> 8 & 0xFF) / (float)0xFF;
+    float b = (c & 0xFF) / (float)0xFF;
+    
+    noStroke();
+    shader(radialGradient);
 
-class Line
-{
-  Line(PVector p1, PVector p2)
-  {
-    this.p1 = p1;
-    this.p2 = p2;
-  }
-
-  PVector p1;
-  PVector p2;
-
-  void draw()
-  {
-    noFill();
-    float d = PVector.dist(p1, p2);
-    stroke((max(d, width * 0.25) / (width * 0.25)) * 0x7f + 0x7e);
-    strokeWeight((d / width) *10);
-    line(p1.x, p1.y, p2.x, p2.y);
+    radialGradient.set("innerColor", r, g, b, 1);
+    radialGradient.set("outerColor", r, g, b, 0.1);
+    radialGradient.set("radius", (float)max(radius, 1));
+  
+    fill(0);
+    rect(center.x - radius, center.y - radius, radius * 2, radius * 2);
   }
 }
 
 KdTree tree = null;
 HashMap<PVector, Circle> circles = new HashMap();
-ArrayList<Line> lines = new ArrayList();
+ArrayList<Circle> oldCircles = new ArrayList();
 
 void setup()
 {
-  size(800, 800);
+  size(800, 800, P2D);
+  background(0);
+
+  radialGradient = loadShader("RadialGradient.frag.glsl", "RadialGradient.vert.glsl");
 
   for (int i = 0; i < startingCircleCount; ++i)
   {
-    Circle newCircle = new Circle(new PVector(random(0, width), random(0, height)));
+    int colorIndex = i % colors.length;
+    color c = colors[colorIndex];
+    Circle newCircle = new Circle(new PVector(random(0, width), random(0, height)), c);
     circles.put(newCircle.center, newCircle);
   }
 }
@@ -112,7 +131,8 @@ void draw()
 
       treeNeedsRebuilding = true;
 
-      lines.add(new Line(c.center, overlappingCircle.center));
+      oldCircles.add(c);
+      oldCircles.add(overlappingCircle);
 
       circlesToRemove.add(c);
       circlesToRemove.add(overlappingCircle);
@@ -126,7 +146,17 @@ void draw()
       PVector s2 = s1.mult(a / d);
       PVector p2 = PVector.add(p0, s2);
 
-      circlesToAdd.add(new Circle(p2));
+      color col;
+      if (c.radius < overlappingCircle.radius)
+      {
+        col = c.c;
+      }
+      else
+      {
+        col = overlappingCircle.c;
+      }
+
+      circlesToAdd.add(new Circle(p2, col));
     }
   }
 
@@ -143,18 +173,27 @@ void draw()
   {
     circles.clear();
     noLoop();
+    println("Done");
+    save("circles.jpg");
+    return;
   }
 
   background(0);
   noFill();
   stroke(255, 128);
-  for (Circle c : circles.values())
+  ArrayList<Circle> allCircles = new ArrayList(circles.values());
+  allCircles.addAll(oldCircles);
+  Collections.sort(allCircles, new Comparator<Circle>() {
+    @Override
+        public int compare(Circle c1, Circle c2)
+        {
+          return c2.radius - c1.radius;
+        }
+  });
+  
+  for (Circle c : allCircles)
   {
     c.draw();
-  }
-  for (Line l : lines)
-  {
-    l.draw();
   }
 
   for (Circle c : circles.values())
