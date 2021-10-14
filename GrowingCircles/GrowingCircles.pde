@@ -1,37 +1,99 @@
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import static java.util.Map.entry;   
 
-int startingCircleCount = 5000;
+void setup()
+{
+  // Setup things here.
+  DoSetup("tweetleDimmer", 
+          Mode.Circles, 
+          1000,
+          //new ExponentialGrowth(0.005, 3));
+          new LinearGrowth(1));
+  // End setup stuff
 
-final color crayonColors[] = {#FF15A9,
-#D51059,
-#FD4327,
-#E52717,
-#811A15,
-#431A13,
-#3D0D56,
-#3D0D56,
-#0D175F,
-#005E80,
-#0091C1,
-#0B3518,
-#00570E,
-#007314,
-#00B000,
-#75C300,
-#FCE300,
-#FFB000
+  size(800, 800, P2D);
+
+  radialGradient = loadShader("RadialGradient.frag.glsl", "RadialGradient.vert.glsl");
+
+  for (int i = 0; i < startingCircles; ++i)
+  {
+    int colorIndex = i % colorSet.length;
+    color c = colorSet[colorIndex];
+    Circle newCircle = new Circle(new PVector(random(0, width), random(0, height)), c);
+    circles.put(newCircle.center, newCircle);
+  }
+}
+
+enum Mode {
+  Circles,
+  Lines
 };
 
-final color rainColors[] = {#6FCFFF,
-#003666,
-#006666,
-#1FB0C3,
-#DBDBDB
-};
+public interface GrowthFunction {
+  float grow(float x);
+  String name();
+}
 
-final color colors[] = rainColors;
+public class LinearGrowth implements GrowthFunction {
+  float i;
+  
+  LinearGrowth(float inI)
+  {
+    i = inI;
+  }
+  
+  float grow(float x)
+  {
+    return x + i;
+  }
+  
+  String name()
+  {
+    return "Linear";
+  }
+}
 
+public class ExponentialGrowth implements GrowthFunction {
+  float a;
+  float b;
+  
+  ExponentialGrowth(float inA, float inB)
+  {
+    a = inA;
+    b = inB;
+  }
+  
+  float grow(float x)
+  {
+    return x + a * x * x + b;
+  }
+  
+  String name()
+  {
+    return "Exponential";
+  }
+}
+
+color[] colorSet;
+Mode drawMode;
+int startingCircles;
+GrowthFunction growthFunction;
+
+String baseImageName;
+
+void DoSetup(String inColorSet, Mode inDrawMode, int inStartingCircles, GrowthFunction inGrowthFunction)
+{
+  colorSet = ColorSets.get(inColorSet);
+  drawMode = inDrawMode;
+  startingCircles = inStartingCircles;
+  growthFunction = inGrowthFunction;
+  
+  baseImageName = String.format("circles-%s-%s-%d-%s", inColorSet, inDrawMode.name(), inStartingCircles, inGrowthFunction.name());
+}
 
 PShader radialGradient;
 
@@ -49,7 +111,7 @@ class Circle
   }
 
   PVector center;
-  int radius;
+  float radius;
   color c;
 
   void draw()
@@ -58,37 +120,32 @@ class Circle
     float g = (c >> 8 & 0xFF) / (float)0xFF;
     float b = (c & 0xFF) / (float)0xFF;
     
-    noStroke();
-    shader(radialGradient);
+    if (drawMode == Mode.Lines)
+    {
+      stroke(#000000);
+      noFill();
+    }
+    else if (drawMode == Mode.Circles)
+    {
+      noStroke();
+      shader(radialGradient);
 
-    radialGradient.set("innerColor", r, g, b, 1);
-    radialGradient.set("outerColor", r, g, b, 0);
-    radialGradient.set("radius", (float)max(radius, 1));
-  
-    fill(0);
-    rect(center.x - radius, center.y - radius, radius * 2, radius * 2);
+      radialGradient.set("innerColor", r, g, b, 1);
+      radialGradient.set("outerColor", r, g, b, 0);
+      radialGradient.set("radius", max((float)radius, (float)1.0));
+      fill(0);
+    }
+
+    rect(center.x - (int)radius,
+         (int)(center.y - radius),
+         (int)(radius * 2),
+         (int)(radius * 2));
   }
 }
 
 KdTree tree = null;
 HashMap<PVector, Circle> circles = new HashMap();
 ArrayList<Circle> oldCircles = new ArrayList();
-
-void setup()
-{
-  size(800, 800, P2D);
-  background(0);
-
-  radialGradient = loadShader("RadialGradient.frag.glsl", "RadialGradient.vert.glsl");
-
-  for (int i = 0; i < startingCircleCount; ++i)
-  {
-    int colorIndex = i % colors.length;
-    color c = colors[colorIndex];
-    Circle newCircle = new Circle(new PVector(random(0, width), random(0, height)), c);
-    circles.put(newCircle.center, newCircle);
-  }
-}
 
 void rebuildTree()
 {
@@ -101,6 +158,17 @@ void rebuildTree()
   }
 
   tree = new KdTree(centers);
+}
+
+void saveImage()
+{
+  String pattern = "yyyyMMddhhmmss";
+  SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+  String dateStr = simpleDateFormat.format(new Date());
+  
+  String filename = String.format("%s-%s.png", baseImageName, dateStr);
+   
+  save(filename);
 }
 
 void draw()
@@ -150,7 +218,7 @@ void draw()
       PVector p0 = c.center.copy();
       PVector p1 = overlappingCircle.center.copy();
       float d = PVector.dist(p0, p1);
-      float a = (c.radius * c.radius - overlappingCircle.radius * overlappingCircle.radius + d * d) / (2 * d);
+      float a = (float)(c.radius * c.radius - overlappingCircle.radius * overlappingCircle.radius + d * d) / (2 * d);
 
       PVector s1 = PVector.sub(p1, p0);
       PVector s2 = s1.mult(a / d);
@@ -170,6 +238,15 @@ void draw()
     }
   }
 
+  for (Circle c : circles.values())
+  {
+    if (!circlesToRemove.contains(c) && 
+      (Float.isInfinite(c.radius) || Float.isNaN(c.radius)))
+    {
+      circlesToRemove.add(c);
+    }
+  }
+
   for (Circle c : circlesToRemove)
   {
     circles.remove(c.center);
@@ -184,11 +261,19 @@ void draw()
     circles.clear();
     noLoop();
     println("Done");
-    save("circles.jpg");
+    saveImage();
     return;
   }
 
-  background(0);
+  if (drawMode == Mode.Lines)
+  {
+    background(#F9FBFF);
+  }
+  else if (drawMode == Mode.Circles)
+  {  
+    background(0);
+  }
+
   noFill();
   stroke(255, 128);
   ArrayList<Circle> allCircles = new ArrayList(circles.values());
@@ -197,7 +282,7 @@ void draw()
     @Override
         public int compare(Circle c1, Circle c2)
         {
-          return c2.radius - c1.radius;
+          return (int)(c2.radius - c1.radius);
         }
   });
   
@@ -208,7 +293,7 @@ void draw()
 
   for (Circle c : circles.values())
   {
-    c.radius += 1;
+    c.radius = growthFunction.grow(c.radius);
   }
 
   if (treeNeedsRebuilding)
@@ -282,9 +367,6 @@ public static class KdTree
       return num_leafs;
     }
   }
-
-
-
 
   //--------------------------------------------------------------------------
   // DISPLAY
@@ -480,3 +562,105 @@ public static class Quicksort {
     points[j] = points_t_;
   }
 } 
+
+final color crayonColors[] = {#FF15A9,
+  #D51059,
+  #FD4327,
+  #E52717,
+  #811A15,
+  #431A13,
+  #3D0D56,
+  #3D0D56,
+  #0D175F,
+  #005E80,
+  #0091C1,
+  #0B3518,
+  #00570E,
+  #007314,
+  #00B000,
+  #75C300,
+  #FCE300,
+  #FFB000
+};
+
+final color rainColors[] = {#6FCFFF,
+  #003666,
+  #006666,
+  #1FB0C3,
+  #DBDBDB
+};
+
+final color houseColors[] = {
+  #025A84,
+  #A32E38,
+  #EFEFEB
+};
+
+final color beetleColors[] = {
+  #ffd867,
+  #dc6f6f,
+  #8f3f3f,
+  #cbdfc4,
+  #c7beda
+};
+
+final color biologyColors[] = {
+  #b1c292,
+  #80ab70,
+  #6d8c5a,
+  #4d866d,
+  #409b73
+};
+
+final color rubyColors[] = {
+  #900603,
+  #fd5200,
+  #73738b,
+  #5d1ae7,
+  #a17e13
+};
+
+final color mememeColors[] = {
+  #ffd966,
+  #111111,
+  #ea9999,
+  #fff2cc,
+  #ffe599
+};
+
+final color kierasColors[] = {
+  #bcb7d3,
+  #000839,
+  #08001c,
+  #08001c,
+  #242527
+};
+
+final color tweetleColors[] = {
+  #d9ead3,
+  #fce5cd,
+  #fff2cc,
+  #d9d2e9,
+  #f3f6f4
+};
+
+final color tweetleDimmerColors[] = {
+  #d9ead3,
+  #fce5cd,
+  #f9cb9c,
+  #c8a2c8,
+  #f3f6f4
+};
+
+Map<String, color[]> ColorSets = Map.ofEntries(
+  entry("crayons", crayonColors),
+  entry("rain", rainColors),
+  entry("house", houseColors),
+  entry("beetle", beetleColors),
+  entry("biology", biologyColors),
+  entry("ruby", rubyColors),
+  entry("mememe", mememeColors),
+  entry("kieras", kierasColors),
+  entry("tweetle", tweetleColors),
+  entry("tweetleDimmer", tweetleDimmerColors)
+);
